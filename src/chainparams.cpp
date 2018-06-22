@@ -159,6 +159,12 @@ public:
         netMagic[2] = 0xf3;
         netMagic[3] = 0xe8;
         nDefaultPort = 10101;
+
+        // Auxpow params
+        consensus.nAuxpowChainId = 0x0044;
+        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
+        consensus.nLegacyBlocksBefore = 371337; //TODO: Change Me
+
         nPruneAfterHeight = 100000;
 
         genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1,
@@ -332,6 +338,13 @@ public:
         netMagic[2] = 0xf3;
         netMagic[3] = 0xf4;
         nDefaultPort = 10201;
+
+
+        // Auxpow params
+        consensus.nAuxpowChainId = 0x0043;
+        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
+        consensus.nLegacyBlocksBefore = -1;
+
         nPruneAfterHeight = 1000;
 
         genesis =
@@ -460,6 +473,11 @@ public:
         netMagic[2] = 0xbf;
         netMagic[3] = 0xfa;
         nDefaultPort = 10301;
+
+        // Auxpow params
+        consensus.nAuxpowChainId = 0x0042;
+        consensus.nLegacyBlocksBefore = 0;
+
         nPruneAfterHeight = 1000;
 
         genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, 50 * COIN);
