@@ -31,7 +31,7 @@ void AppendParamsHelpMessages(std::string &strUsage, bool debugHelp) {
  */
 class CBaseMainParams : public CBaseChainParams {
 public:
-    CBaseMainParams() { nRPCPort = 8332; }
+    CBaseMainParams() { nRPCPort = 10102; }
 };
 
 /**
@@ -40,7 +40,7 @@ public:
 class CBaseTestNetParams : public CBaseChainParams {
 public:
     CBaseTestNetParams() {
-        nRPCPort = 18332;
+        nRPCPort = 10202;
         strDataDir = "testnet3";
     }
 };
@@ -51,7 +51,7 @@ public:
 class CBaseRegTestParams : public CBaseChainParams {
 public:
     CBaseRegTestParams() {
-        nRPCPort = 18332;
+        nRPCPort = 10302;
         strDataDir = "regtest";
     }
 };
