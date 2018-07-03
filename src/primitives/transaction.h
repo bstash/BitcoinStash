@@ -50,6 +50,7 @@ public:
         READWRITE(n);
     }
 
+    void SetNull() { txid.SetNull(); n = (uint32_t) -1; }
     bool IsNull() const { return txid.IsNull() && n == uint32_t(-1); }
 
     const TxId &GetTxId() const { return txid; }
