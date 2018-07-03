@@ -6,6 +6,7 @@
 
 #include "validation.h"
 
+#include "auxpow.h"
 #include "arith_uint256.h"
 #include "chainparams.h"
 #include "checkpoints.h"
@@ -1253,9 +1254,10 @@ static bool ReadBlockOrHeader(T& block, const CDiskBlockPos& pos, const Config &
                      e.what(), pos.ToString());
     }
 
+
     // Check the header
-    if (!CheckProofOfWork(block.GetHash(), block.nBits, config)) {
-        return error("ReadBlockFromDisk: Errors in block header at %s",
+    if (!CheckAuxPowProofOfWork(block, config)) {
+        return error("ReadBlockorHeader: Errors in block header at %s",
                      pos.ToString());
     }
 
@@ -3493,7 +3495,7 @@ static bool CheckBlockHeader(
     BlockValidationOptions validationOptions = BlockValidationOptions()) {
     // Check proof of work matches claimed amount
     if (validationOptions.shouldValidatePoW() &&
-        !CheckProofOfWork(block.GetHash(), block.nBits, config)) {
+        !CheckAuxPowProofOfWork(block, config)) {
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false,
                          "proof of work failed");
     }
