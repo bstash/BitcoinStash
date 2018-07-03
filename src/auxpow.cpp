@@ -19,6 +19,9 @@
 #include "utilstrencodings.h"
 #include "validation.h"
 
+//for debugging only
+#include "core_io.h"
+
 #include <algorithm>
 
 /* Moved from wallet.cpp.  CMerkleTx is necessary for auxpow, independent
@@ -27,41 +30,133 @@
 const uint256 CMerkleTx::ABANDON_HASH(uint256S("0000000000000000000000000000000000000000000000000000000000000001"));
 
 
-bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Config& config)
+std::vector<unsigned char> BuildChainId(int32_t chainId)
 {
-    /* Except for legacy blocks with full version 1, ensure that
-       the chain ID is correct.  Legacy blocks are not allowed since
-       the merge-mining start, which is checked in AcceptBlockHeader
-       where the height is known.  */
-    const Consensus::Params &params = config.GetChainParams().GetConsensus();
+    std::vector<unsigned char> out;
+    out.insert(out.end(), UBEGIN(chainId), UEND(chainId));
+    return out;
+}
 
-    if (!block.IsLegacy() && params.fStrictChainId && block.GetChainId() != params.nAuxpowChainId)
-        return error("%s : block does not have our chain ID"
-                     " (got %d, expected %d, full nVersion %d)",
-                     __func__, block.GetChainId(),
-                     params.nAuxpowChainId, block.nVersion);
+
+std::vector<unsigned char> BuildCoinbaseData(const uint256& hash, unsigned h, int nonce, int chainId)
+{
+    std::vector<unsigned char> vHash = ToByteVector(hash);
+    std::reverse(vHash.begin(), vHash.end());
+
+    std::vector<unsigned char> out;
+
+    out.insert(out.end(), UBEGIN(pchMergedMiningHeader), UEND(pchMergedMiningHeader));
+    out.insert(out.end(), vHash.begin(), vHash.end());
+
+    const int size = (1 << h);
+    out.insert(out.end(), UBEGIN(size), UEND(size));
+    out.insert(out.end(), UBEGIN(nonce), UEND(nonce));
+
+    std::vector<unsigned char> vchainId = BuildChainId(chainId);
+    out.insert(out.end(), vchainId.begin(), vchainId.end());
+    return out;
+}
+
+
+// extract all relevant data from coinbas
+// Returns true if all data present
+bool ParseAuxPowData(const CScript &script, std::vector<unsigned char> &vchRootHash,
+                                uint32_t &nSize, uint32_t &nNonce, int32_t &chainId,
+                                std::string &fail_reason)
+{
+    CScript::const_iterator pc =
+        std::search(script.begin(), script.end(), UBEGIN(pchMergedMiningHeader), UEND(pchMergedMiningHeader));
+
+    if (pc == script.end()){
+        fail_reason = "Merge mining header does not exist";
+        return false;
+    }
+
+    // Enforce only one chain merkle root by checking that a single instance of the merged
+    // mining header exists just before.
+    if (script.end() != std::search(pc + 1, script.end(), UBEGIN(pchMergedMiningHeader), UEND(pchMergedMiningHeader))){
+        fail_reason = "Multiple merged mining headers in coinbase";
+        return false;
+    }
+    if (script.end() - pc < sizeof(pchMergedMiningHeader)+32+8+4){
+        fail_reason = "Data in coinbase not big enough to contain merge mine data";
+        return false;
+    }
+
+    // Get hash from coinbase
+    pc += sizeof(pchMergedMiningHeader);
+    assert(vchRootHash.empty());
+    vchRootHash.insert(vchRootHash.end(), pc, pc+32);
+
+    // Get nSize and nNonce
+    pc += 32;
+    memcpy(&nSize, &pc[0], 4);
+    nSize = le32toh(nSize);
+    memcpy(&nNonce, &pc[4], 4);
+    nNonce = le32toh (nNonce);
+
+    // Get chainId
+    pc += 8;
+
+    memcpy(&chainId, &pc[0], 4);
+    chainId = le32toh(chainId);
+
+    return true;
+}
+
+
+
+// for checking auxpow block coinbase script for chain Id
+bool CheckAuxPowCoinbase(const CScript& cb_script, int32_t ourChainId)
+{
+    std::vector<unsigned char> hash;
+    uint32_t size;
+    uint32_t nonce;
+    int32_t chainId;
+    std::string fail_reason;
+    if(ParseAuxPowData(cb_script, hash, size, nonce, chainId, fail_reason))
+    {
+        /*
+        if our block has parseable aux pow data in the coinbase, make sure
+        the chain id It contains is ours. This prevents the block from being
+        resubmitted as the parent block to a another block, since we reject
+        parent block with the same chain Id as ours.
+        */
+        if(chainId != ourChainId)
+            return error("%s : chainId %i found on block coinbase is not ours", __func__, chainId);
+    }
+    return true;
+}
+
+// for checking header
+bool CheckAuxPowHeader(const CBlockHeader& header, const Config &config)
+{
+    int32_t ourChainId = config.GetChainParams().GetConsensus().nAuxpowChainId;
 
     /* If there is no auxpow, just check the block hash.  */
-    if (!block.auxpow)
+    if (!header.auxpow)
     {
-        if (block.IsAuxpow())
+        if (header.IsAuxPow()){
             return error("%s : no auxpow on block with auxpow version",
                          __func__);
-        if (!CheckProofOfWork(block.GetHash(), block.nBits, config))
+        }
+        if (!CheckProofOfWork(header.GetHash(), header.nBits, config)){
             return error("%s : non-AUX proof of work failed", __func__);
 
+        }
         return true;
     }
 
     /* We have auxpow.  Check it.  */
-
-    if (!block.IsAuxpow())
+    if (!header.IsAuxPow()){
         return error("%s : auxpow on block with non-auxpow version", __func__);
-
-    if (!block.auxpow->check(block.GetHash(), block.GetChainId(), params))
+    }
+    if (!header.auxpow->check(header.GetHash(), ourChainId)){
         return error("%s : AUX POW is not valid", __func__);
-    if (!CheckProofOfWork(block.auxpow->getParentBlockPoWHash(), block.nBits, config))
+    }
+    if (!CheckProofOfWork(header.auxpow->getParentBlockPoWHash(), header.nBits, config)){
         return error("%s : AUX proof of work failed", __func__);
+        }
 
     return true;
 }
@@ -116,87 +211,59 @@ bool CMerkleTx::AcceptToMemoryPool(const Amount& nAbsurdFee, CValidationState& s
 
 /* ************************************************************************** */
 
-bool
-CAuxPow::check(const uint256& hashAuxBlock, int nChainId,
-               const Consensus::Params& params) const
+bool CAuxPow::check(const uint256& hashAuxBlock, int ourChainId) const
 {
-    if (nIndex != 0)
+    if (nIndex != 0){
         return error("AuxPow is not a generate");
+    }
 
-    if (params.fStrictChainId && parentBlock.GetChainId () == nChainId)
-        return error("Aux POW parent has our chain ID");
-
-    if (vChainMerkleBranch.size() > 30)
+    if (vChainMerkleBranch.size() > 30){
         return error("Aux POW chain merkle branch too long");
+    }
 
-    // Check that the chain merkle root is in the coinbase
+    // Get auxpow chain merkle root
     const uint256 nRootHash
       = CheckMerkleBranch(hashAuxBlock, vChainMerkleBranch, nChainIndex);
     std::vector<unsigned char> vchRootHash(nRootHash.begin(), nRootHash.end());
     std::reverse(vchRootHash.begin(), vchRootHash.end()); // correct endian
 
-    // Check that we are in the parent block merkle tree
+    // Check that we, the auxpow coinbase transaction, are in the parent block merkle tree
     if (CheckMerkleBranch(GetHash(), vMerkleBranch, nIndex)
           != parentBlock.hashMerkleRoot)
         return error("Aux POW merkle root incorrect");
-    
-    const CScript script = tx->vin[0].scriptSig;
 
-    // Check that the same work is not submitted twice to our chain.
-    //
+    // Parse aux pow data from coinbase
+    std::vector<unsigned char> vchRootHashInCoinbase;
+    uint32_t nSize;
+    uint32_t nNonce;
+    int32_t parentChainId;
+    std::string fail_reason;
+    if(!ParseAuxPowData(tx->vin[0].scriptSig, vchRootHashInCoinbase, nSize, nNonce, parentChainId,
+                        fail_reason)){
+        return error(fail_reason.c_str());
 
-    CScript::const_iterator pcHead =
-        std::search(script.begin(), script.end(), UBEGIN(pchMergedMiningHeader), UEND(pchMergedMiningHeader));
-
-    CScript::const_iterator pc =
-        std::search(script.begin(), script.end(), vchRootHash.begin(), vchRootHash.end());
-
-    if (pc == script.end())
+    }
+    if (!std::equal(vchRootHashInCoinbase.begin(), vchRootHashInCoinbase.end(), vchRootHash.begin()))
         return error("Aux POW missing chain merkle root in parent coinbase");
 
-    if (pcHead != script.end())
-    {
-        // Enforce only one chain merkle root by checking that a single instance of the merged
-        // mining header exists just before.
-        if (script.end() != std::search(pcHead + 1, script.end(), UBEGIN(pchMergedMiningHeader), UEND(pchMergedMiningHeader)))
-            return error("Multiple merged mining headers in coinbase");
-        if (pcHead + sizeof(pchMergedMiningHeader) != pc)
-            return error("Merged mining header is not just before chain merkle root");
-    }
-    else
-    {
-        // For backward compatibility.
-        // Enforce only one chain merkle root by checking that it starts early in the coinbase.
-        // 8-12 bytes are enough to encode extraNonce and nBits.
-        if (pc - script.begin() > 20)
-            return error("Aux POW chain merkle root must start in the first 20 bytes of the parent coinbase");
-    }
 
-
-    // Ensure we are at a deterministic point in the merkle leaves by hashing
-    // a nonce and our chain ID and comparing to the index.
-    pc += vchRootHash.size();
-    if (script.end() - pc < 8)
-        return error("Aux POW missing chain merkle tree size and nonce in parent coinbase");
-
-    uint32_t nSize;
-    memcpy(&nSize, &pc[0], 4);
-    nSize = le32toh(nSize);
     const unsigned merkleHeight = vChainMerkleBranch.size();
-    if (nSize != (1u << merkleHeight))
-        return error("Aux POW merkle branch size does not match parent coinbase");
+    if (nSize != (1u << merkleHeight)){
+        return error("Aux POW merkle branch size %i does not match size in parent coinbase %i", nSize, 1u << merkleHeight);
+    }
 
-    uint32_t nNonce;
-    memcpy(&nNonce, &pc[4], 4);
-    nNonce = le32toh (nNonce);
-    if (nChainIndex != getExpectedIndex (nNonce, nChainId, merkleHeight))
+    if (nChainIndex != getExpectedIndex (nNonce, ourChainId, merkleHeight)){
         return error("Aux POW wrong index");
+    }
+
+    if (parentChainId == ourChainId){
+        return error("Aux POW parent has our chain ID");
+    }
 
     return true;
 }
 
-int
-CAuxPow::getExpectedIndex (uint32_t nNonce, int nChainId, unsigned h)
+int CAuxPow::getExpectedIndex (uint32_t nNonce, int nChainId, unsigned h)
 {
   // Choose a pseudo-random slot in the chain merkle tree
   // but have it be fixed for a size/nonce/chain combination.
@@ -221,8 +288,7 @@ CAuxPow::getExpectedIndex (uint32_t nNonce, int nChainId, unsigned h)
   return rand % (1u << h);
 }
 
-uint256
-CAuxPow::CheckMerkleBranch (uint256 hash,
+uint256 CAuxPow::CheckMerkleBranch (uint256 hash,
                             const std::vector<uint256>& vMerkleBranch,
                             int nIndex)
 {
@@ -240,18 +306,17 @@ CAuxPow::CheckMerkleBranch (uint256 hash,
   return hash;
 }
 
-void
-CAuxPow::initAuxPow (CBlockHeader& header)
+
+
+void CAuxPow::initAuxPow(CBlockHeader& header, int32_t parentChainId)
 {
   /* Set auxpow flag right now, since we take the block hash below.  */
-  header.SetAuxpowFlag(true);
+  header.SetAuxPowVersion(true);
 
   /* Build a minimal coinbase script input for merge-mining.  */
   const uint256 blockHash = header.GetHash ();
-  std::vector<unsigned char> inputData(blockHash.begin (), blockHash.end ());
-  std::reverse (inputData.begin (), inputData.end ());
-  inputData.push_back (1);
-  inputData.insert (inputData.end (), 7, 0);
+  std::vector<unsigned char> inputData = BuildCoinbaseData(blockHash, 0, 7, parentChainId);
+    
 
   /* Fake a parent-block coinbase with just the required input
      script and no outputs.  */
@@ -270,7 +335,7 @@ CAuxPow::initAuxPow (CBlockHeader& header)
   parent.hashMerkleRoot = BlockMerkleRoot(parent);
 
   /* Construct the auxpow object.  */
-  header.SetAuxpow(new CAuxPow(coinbaseRef));
+  header.SetAuxPow(new CAuxPow(coinbaseRef));
   assert (header.auxpow->vChainMerkleBranch.empty());
   header.auxpow->nChainIndex = 0;
   assert (header.auxpow->vMerkleBranch.empty());

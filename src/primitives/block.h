@@ -11,6 +11,7 @@
 #include "primitives/pureheader.h"
 #include "serialize.h"
 #include "uint256.h"
+#include "script/script.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -35,13 +36,14 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(*(CPureBlockHeader*)this);
 
-        if (this->IsAuxpow())
+        if (this->IsAuxPow())
         {
             if (ser_action.ForRead())
                 auxpow.reset(new CAuxPow());
             assert(auxpow);
             READWRITE(*auxpow);
-        } else if (ser_action.ForRead())
+        }
+        else if (ser_action.ForRead())
             auxpow.reset();
     }
 
@@ -56,7 +58,7 @@ public:
      * the version accordingly.
      * @param apow Pointer to the auxpow to use or NULL.
      */
-    void SetAuxpow(CAuxPow* apow);
+    void SetAuxPow(CAuxPow* apow);
 };
 
 class CBlock : public CBlockHeader {
@@ -109,6 +111,9 @@ public:
     std::vector<uint256> GetMerkleBranch(int nIndex) const;
     static uint256 CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
     std::string ToString() const;
+
+
+
 };
 
 /**

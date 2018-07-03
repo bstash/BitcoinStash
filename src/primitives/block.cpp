@@ -10,16 +10,16 @@
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 
-void CBlockHeader::SetAuxpow(CAuxPow* apow)
+void CBlockHeader::SetAuxPow(CAuxPow* apow)
 {
     if (apow)
     {
         auxpow.reset(apow);
-        SetAuxpowFlag(true);
+        SetAuxPowVersion(true);
     } else
     {
         auxpow.reset();
-        SetAuxpowFlag(false);
+        SetAuxPowVersion(false);
     }
 }
 

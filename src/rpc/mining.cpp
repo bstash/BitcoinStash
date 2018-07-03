@@ -145,7 +145,8 @@ UniValue generateBlocks(const Config &config,
             IncrementExtraNonce(config, pblock, chainActive.Tip(), nExtraNonce);
         }
 
-        CAuxPow::initAuxPow(*pblock);
+        int32_t parentChainId = 42;
+        CAuxPow::initAuxPow(*pblock, parentChainId);
         CPureBlockHeader& miningHeader = pblock->auxpow->parentBlock;
         while (nMaxTries > 0 && miningHeader.nNonce < nInnerLoopCount && !CheckProofOfWork(miningHeader.GetHash(), pblock->nBits, config)) {
             ++miningHeader.nNonce;
@@ -1008,7 +1009,7 @@ UniValue AuxMiningCreateBlock(const Config &config, const CScript& scriptPubKey)
 
         // Finalise it by setting the version and building the merkle root
         IncrementExtraNonce(config, &newBlock->block, pindexPrev, nExtraNonce);
-        newBlock->block.SetAuxpowFlag(true);
+        newBlock->block.SetAuxPowVersion(true);
 
         // Save
         pblock = &newBlock->block;
@@ -1032,13 +1033,13 @@ UniValue AuxMiningCreateBlock(const Config &config, const CScript& scriptPubKey)
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("hash", pblock->GetHash().GetHex());
-    result.pushKV("chainid", pblock->GetChainId());
     result.pushKV("previousblockhash", pblock->hashPrevBlock.GetHex());
     result.pushKV("coinbasevalue", (int64_t)pblock->vtx[0]->vout[0].nValue.GetSatoshis());
     result.pushKV("bits", strprintf("%08x", pblock->nBits));
     result.pushKV("height", static_cast<int64_t> (pindexPrev->nHeight + 1));
     result.pushKV("_target", HexStr(BEGIN(target), END(target)));
-
+    //TODO: is this correct? 
+    result.pushKV("chainid", config.GetChainParams().GetConsensus().nAuxpowChainId);
     return result;
 }
 
@@ -1062,7 +1063,7 @@ bool AuxMiningSubmitBlock(const Config &config,
     CDataStream ss(vchAuxPow, SER_GETHASH, PROTOCOL_VERSION);
     CAuxPow pow;
     ss >> pow;
-    block.SetAuxpow(new CAuxPow(pow));
+    block.SetAuxPow(new CAuxPow(pow));
     assert(block.GetHash() == hash);
 
     submitblock_StateCatcher sc(block.GetHash());

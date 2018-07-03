@@ -17,7 +17,7 @@ CBlockHeader CBlockIndex::GetBlockHeader(const Config& config) const
     /* The CBlockIndex object's block header is missing the auxpow.
        So if this is an auxpow block, read it from disk instead.  We only
        have to read the actual *header*, not the full block.  */
-    if (block.IsAuxpow())
+    if (block.IsAuxPow())
     {
         ReadBlockHeaderFromDisk(block, this, config);
         return block;

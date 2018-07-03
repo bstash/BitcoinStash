@@ -21,11 +21,9 @@ class CPureBlockHeader
 {
 public:
 
-    /* Modifiers to the version.  */
-    static const int32_t VERSION_AUXPOW = (1 << 8);
-
-    /** Bits above are reserved for the auxpow chain ID.  */
-    static const int32_t VERSION_CHAIN_START = (1 << 16);
+    /* AUXPOW blocks must be version 5  */
+    static const int32_t VERSION_AUXPOW = 5;
+    static const int32_t VERSION_NO_AUXPOW = 4;
 
     // header
     int32_t nVersion;
@@ -77,88 +75,21 @@ public:
         return (int64_t)nTime;
     }
 
-    /* Below are methods to interpret the version with respect to
-       auxpow data and chain ID.  This used to be in the CBlockVersion
-       class, but was moved here when we switched back to nVersion being
-       a pure int member as preparation to undoing the "abuse" and
-       allowing BIP9 to work.  */
-
     /**
-     * Extract the base version (without modifiers and chain ID).
-     * @return The base version./
-     */
-    inline int32_t GetBaseVersion() const
-    {
-        return GetBaseVersion(nVersion);
-    }
-
-    static inline int32_t GetBaseVersion(int32_t ver)
-    {
-        return ver % VERSION_AUXPOW;
-    }
-
-    /**
-     * Set the base version (apart from chain ID and auxpow flag) to
-     * the one given.  This should only be called when auxpow is not yet
-     * set, to initialise a block!
-     * @param nBaseVersion The base version.
-     * @param nChainId The auxpow chain ID.
-     */
-    void SetBaseVersion(int32_t nBaseVersion, int32_t nChainId)
-    {
-        assert(nBaseVersion >= 1 && nBaseVersion < VERSION_AUXPOW);
-        assert(!IsAuxpow());
-        nVersion = nBaseVersion | (nChainId * VERSION_CHAIN_START);
-    }
-
-    /**
-     * Extract the chain ID.
-     * @return The chain ID encoded in the version.
-     */
-    inline int32_t GetChainId() const
-    {
-        return nVersion >> 16;
-    }
-
-    /**
-     * Set the chain ID.  This is used for the test suite.
-     * @param ch The chain ID to set.
-     */
-    inline void SetChainId(int32_t chainId)
-    {
-        nVersion %= VERSION_CHAIN_START;
-        nVersion |= chainId * VERSION_CHAIN_START;
-    }
-
-    /**
-     * Check if the auxpow flag is set in the version.
+     * Check if block is an auxpow block
      * @return True iff this block version is marked as auxpow.
      */
-    inline bool IsAuxpow() const
+    inline bool IsAuxPow() const
     {
-        return nVersion & VERSION_AUXPOW;
+        return nVersion == VERSION_AUXPOW;
     }
 
-    /**
-     * Set the auxpow flag.  This is used for testing.
-     * @param auxpow Whether to mark auxpow as true.
-     */
-    inline void SetAuxpowFlag(bool auxpow)
+    inline void  SetAuxPowVersion(bool auxpow)
     {
-        if (auxpow)
-            nVersion |= VERSION_AUXPOW;
-        else
-            nVersion &= ~VERSION_AUXPOW;
+        nVersion = auxpow ? VERSION_AUXPOW : VERSION_NO_AUXPOW;
     }
 
-    /**
-     * Check whether this is a "legacy" block without chain ID.
-     * @return True iff it is.
-     */
-    inline bool IsLegacy() const
-    {
-        return nVersion == 1;
-    }
+
 };
 
 #endif // BITCOIN_PRIMITIVES_PUREHEADER_H

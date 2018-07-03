@@ -1256,7 +1256,7 @@ static bool ReadBlockOrHeader(T& block, const CDiskBlockPos& pos, const Config &
 
 
     // Check the header
-    if (!CheckAuxPowProofOfWork(block, config)) {
+    if (!CheckAuxPowHeader(block, config)) {
         return error("ReadBlockorHeader: Errors in block header at %s",
                      pos.ToString());
     }
@@ -3490,12 +3490,11 @@ static bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos,
  * Do not call this for any check that depends on the context.
  * For context-dependant calls, see ContextualCheckBlockHeader.
  */
-static bool CheckBlockHeader(
-    const Config &config, const CBlockHeader &block, CValidationState &state,
-    BlockValidationOptions validationOptions = BlockValidationOptions()) {
+static bool CheckBlockHeader(const Config &config, const CBlockHeader &block, CValidationState &state,
+                             BlockValidationOptions validationOptions = BlockValidationOptions()) {
+
     // Check proof of work matches claimed amount
-    if (validationOptions.shouldValidatePoW() &&
-        !CheckAuxPowProofOfWork(block, config)) {
+    if (validationOptions.shouldValidatePoW() && !CheckAuxPowHeader(block, config)) {
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false,
                          "proof of work failed");
     }
@@ -3688,7 +3687,7 @@ static bool ContextualCheckBlockHeader(const Config &config,
         (block.nVersion < 4 && nHeight >= consensusParams.BIP65Height)) {
         return state.Invalid(
             false, REJECT_OBSOLETE,
-            strprintf("bad-version(0x%08x)", block.nVersion),
+            strprintf("bad-version(0x%08x), height:%i", block.nVersion, nHeight),
             strprintf("rejected nVersion=0x%08x block", block.nVersion));
     }
 
@@ -3793,6 +3792,20 @@ static bool ContextualCheckBlock(const Config &config, const CBlock &block,
                              "block height mismatch in coinbase");
         }
     }
+
+
+    // Auxpow: After auxpow activation height, enforce that the coinbase
+    // must cointain a chain Id, if it also has a merge mining header
+    if (nHeight >= consensusParams.nAuxpowStartHeight) {
+
+        if (!CheckAuxPowCoinbase(block.vtx[0]->vin[0].scriptSig,
+                            config.GetChainParams().GetConsensus().nAuxpowChainId)){
+            return state.DoS(100, false, REJECT_INVALID, "bad-auxpow-chainid", false,
+                             "chainId found on auxpow block is not ours");
+        }
+
+    }
+
 
     return true;
 }

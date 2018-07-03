@@ -20,11 +20,17 @@ class CBlock;
 class CBlockHeader;
 class CBlockIndex;
 class CValidationState;
+class CScript;
+
 
 /** Header for merge-mining data in the coinbase.  */
 static const unsigned char pchMergedMiningHeader[] = { 0xfa, 0xbe, 'm', 'm' };
 
-bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Config& config);
+bool CheckAuxPowCoinbase(const CScript& cb_script, int32_t ourChainId);
+
+bool CheckAuxPowHeader(const CBlockHeader& header, const Config &config);
+
+std::vector<unsigned char> BuildCoinbaseData(const uint256& hash, unsigned h, int nonce, int chainId);
 
 
 /* Because it is needed for auxpow, the definition of CMerkleTx is moved
@@ -166,12 +172,10 @@ public:
    * Note that this does not verify the actual PoW on the parent block!  It
    * just confirms that all the merkle branches are valid.
    * @param hashAuxBlock Hash of the merge-mined block.
-   * @param nChainId The auxpow chain ID of the block to check.
-   * @param params Consensus parameters.
+   * @param ourChainId The auxpow chain ID of the block to check.
    * @return True if the auxpow is valid.
    */
-  bool check (const uint256& hashAuxBlock, int nChainId,
-              const Consensus::Params& params) const;
+  bool check(const uint256& hashAuxBlock, int ourChainId) const;
 
   /**
    * Get the parent block's hash.  This is used to verify that it
@@ -214,14 +218,15 @@ public:
                                     const std::vector<uint256>& vMerkleBranch,
                                     int nIndex);
 
+
   /**
    * Initialise the auxpow of the given block header.  This constructs
-   * a minimal CAuxPow object with a minimal parent block and sets
-   * it on the block header.  The auxpow is not necessarily valid, but
+   * a minimal CAuxPow object with a minimal parent block with parentChainId 
+   * and sets it on the block header.  The auxpow is not necessarily valid, but
    * can be "mined" to make it valid.
    * @param header The header to set the auxpow on.
    */
-  static void initAuxPow (CBlockHeader& header);
+  static void initAuxPow(CBlockHeader& header, int32_t parentChainId);
 
 };
 
