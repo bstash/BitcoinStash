@@ -620,6 +620,7 @@ bool ReadBlockFromDisk(CBlock &block, const CDiskBlockPos &pos,
                        const Config &config);
 bool ReadBlockFromDisk(CBlock &block, const CBlockIndex *pindex,
                        const Config &config);
+bool ReadBlockHeaderFromDisk(CBlockHeader& block, const CBlockIndex* pindex, const Config &config);
 
 /** Functions for validating blocks and updating the block tree */
 

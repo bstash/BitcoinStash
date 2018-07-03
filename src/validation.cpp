@@ -1230,8 +1230,12 @@ static bool WriteBlockToDisk(const CBlock &block, CDiskBlockPos &pos,
     return true;
 }
 
-bool ReadBlockFromDisk(CBlock &block, const CDiskBlockPos &pos,
-                       const Config &config) {
+/* Generic implementation of block reading that can handle
+   both a block and its header.  */
+
+template<typename T>
+static bool ReadBlockOrHeader(T& block, const CDiskBlockPos& pos, const Config &config)
+{
     block.SetNull();
 
     // Open history file to read
@@ -1258,20 +1262,38 @@ bool ReadBlockFromDisk(CBlock &block, const CDiskBlockPos &pos,
     return true;
 }
 
-bool ReadBlockFromDisk(CBlock &block, const CBlockIndex *pindex,
-                       const Config &config) {
-    if (!ReadBlockFromDisk(block, pindex->GetBlockPos(), config)) {
+template<typename T>
+static bool ReadBlockOrHeader(T& block, const CBlockIndex* pindex, const Config &config)
+{
+    if (!ReadBlockOrHeader(block, pindex->GetBlockPos(), config)) {
         return false;
     }
 
     if (block.GetHash() != pindex->GetBlockHash()) {
-        return error("ReadBlockFromDisk(CBlock&, CBlockIndex*): GetHash() "
+        return error("ReadBlockOrHeader(CBlock&, CBlockIndex*): GetHash() "
                      "doesn't match index for %s at %s",
                      pindex->ToString(), pindex->GetBlockPos().ToString());
     }
 
     return true;
 }
+
+bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Config &config)
+{
+    return ReadBlockOrHeader(block, pos, config);
+}
+
+bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Config &config)
+{
+    return ReadBlockOrHeader(block, pindex, config);
+}
+
+bool ReadBlockHeaderFromDisk(CBlockHeader& block, const CBlockIndex* pindex, const Config &config)
+{
+    return ReadBlockOrHeader(block, pindex, config);
+}
+
+
 
 Amount GetBlockSubsidy(int nHeight, const Consensus::Params &consensusParams) {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
