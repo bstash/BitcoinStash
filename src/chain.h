@@ -376,7 +376,7 @@ public:
     }
 
 
-    CBlockHeader GetBlockHeader(const Consensus::Params& consensusParams) const;
+    CBlockHeader GetBlockHeader(const Config& config) const;
 
     uint256 GetBlockHash() const { return *phashBlock; }
 

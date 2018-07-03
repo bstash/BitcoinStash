@@ -173,7 +173,7 @@ static bool rest_headers(Config &config, HTTPRequest *req,
 
     CDataStream ssHeader(SER_NETWORK, PROTOCOL_VERSION);
     for (const CBlockIndex *pindex : headers) {
-        ssHeader << pindex->GetBlockHeader();
+        ssHeader << pindex->GetBlockHeader(config);
     }
 
     switch (rf) {

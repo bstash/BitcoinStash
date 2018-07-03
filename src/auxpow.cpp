@@ -11,6 +11,7 @@
 #include "consensus/consensus.h"
 #include "consensus/merkle.h"
 #include "consensus/validation.h"
+#include "chainparams.h"
 #include "hash.h"
 #include "script/script.h"
 #include "txmempool.h"
@@ -26,12 +27,14 @@
 const uint256 CMerkleTx::ABANDON_HASH(uint256S("0000000000000000000000000000000000000000000000000000000000000001"));
 
 
-bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Consensus::Params& params)
+bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Config& config)
 {
     /* Except for legacy blocks with full version 1, ensure that
        the chain ID is correct.  Legacy blocks are not allowed since
        the merge-mining start, which is checked in AcceptBlockHeader
        where the height is known.  */
+    const Consensus::Params &params = config.GetChainParams().GetConsensus();
+
     if (!block.IsLegacy() && params.fStrictChainId && block.GetChainId() != params.nAuxpowChainId)
         return error("%s : block does not have our chain ID"
                      " (got %d, expected %d, full nVersion %d)",
@@ -44,8 +47,7 @@ bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Consensus::Params& 
         if (block.IsAuxpow())
             return error("%s : no auxpow on block with auxpow version",
                          __func__);
-
-        if (!CheckProofOfWork(block.GetHash(), block.nBits, params))
+        if (!CheckProofOfWork(block.GetHash(), block.nBits, config))
             return error("%s : non-AUX proof of work failed", __func__);
 
         return true;
@@ -58,7 +60,7 @@ bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Consensus::Params& 
 
     if (!block.auxpow->check(block.GetHash(), block.GetChainId(), params))
         return error("%s : AUX POW is not valid", __func__);
-    if (!CheckProofOfWork(block.auxpow->getParentBlockPoWHash(), block.nBits, params))
+    if (!CheckProofOfWork(block.auxpow->getParentBlockPoWHash(), block.nBits, config))
         return error("%s : AUX proof of work failed", __func__);
 
     return true;
@@ -137,7 +139,7 @@ CAuxPow::check(const uint256& hashAuxBlock, int nChainId,
     if (CheckMerkleBranch(GetHash(), vMerkleBranch, nIndex)
           != parentBlock.hashMerkleRoot)
         return error("Aux POW merkle root incorrect");
-
+    
     const CScript script = tx->vin[0].scriptSig;
 
     // Check that the same work is not submitted twice to our chain.

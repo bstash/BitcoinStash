@@ -24,7 +24,7 @@ class CValidationState;
 /** Header for merge-mining data in the coinbase.  */
 static const unsigned char pchMergedMiningHeader[] = { 0xfa, 0xbe, 'm', 'm' };
 
-bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Consensus::Params& params);
+bool CheckAuxPowProofOfWork(const CBlockHeader& block, const Config& config);
 
 
 /* Because it is needed for auxpow, the definition of CMerkleTx is moved

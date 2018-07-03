@@ -2002,7 +2002,7 @@ static bool ProcessMessage(const Config &config, CNode *pfrom,
                  (pindex ? pindex->nHeight : -1),
                  hashStop.IsNull() ? "end" : hashStop.ToString(), pfrom->id);
         for (; pindex; pindex = chainActive.Next(pindex)) {
-            vHeaders.push_back(pindex->GetBlockHeader());
+            vHeaders.push_back(pindex->GetBlockHeader(config));
             if (--nLimit <= 0 || pindex->GetBlockHash() == hashStop) {
                 break;
             }
@@ -3389,7 +3389,7 @@ bool SendMessages(const Config &config, CNode *pto, CConnman &connman,
                 pBestIndex = pindex;
                 if (fFoundStartingHeader) {
                     // add this to the headers message
-                    vHeaders.push_back(pindex->GetBlockHeader());
+                    vHeaders.push_back(pindex->GetBlockHeader(config));
                 } else if (PeerHasHeader(&state, pindex)) {
                     // Keep looking for the first new block.
                     continue;
@@ -3399,7 +3399,7 @@ bool SendMessages(const Config &config, CNode *pto, CConnman &connman,
                     // one.
                     // Start sending headers.
                     fFoundStartingHeader = true;
-                    vHeaders.push_back(pindex->GetBlockHeader());
+                    vHeaders.push_back(pindex->GetBlockHeader(config));
                 } else {
                     // Peer doesn't have this header or the prior one --
                     // nothing will connect, so bail out.

@@ -748,7 +748,7 @@ UniValue getblockheader(const Config &config, const JSONRPCRequest &request) {
 
     if (!fVerbose) {
         CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION);
-        ssBlock << pblockindex->GetBlockHeader();
+        ssBlock << pblockindex->GetBlockHeader(config);
         std::string strHex = HexStr(ssBlock.begin(), ssBlock.end());
         return strHex;
     }
