@@ -194,12 +194,13 @@ BOOST_AUTO_TEST_CASE(test_userAgentLength) {
     gArgs.ForceSetMultiArg("-uacomment", long_uacomment);
 
     BOOST_CHECK_EQUAL(userAgent(config).size(), MAX_SUBVERSION_LENGTH);
-    BOOST_CHECK_EQUAL(userAgent(config),
-                      "/Bitcoin ABC:0.17.3(EB8.0; very very very very very "
+    std::string trunc_string = "/Bitcoin Stash:0.17.0(EB8.0; very very very very very "
                       "very very very very very very very very very very very "
                       "very very very very very very very very very very very "
                       "very very very very very very very very very very very "
-                      "very very very very very very very ve)/");
+                      "very very very very very very very )/";
+    BOOST_CHECK_EQUAL(MAX_SUBVERSION_LENGTH, trunc_string.size());
+    BOOST_CHECK_EQUAL(userAgent(config), trunc_string);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
