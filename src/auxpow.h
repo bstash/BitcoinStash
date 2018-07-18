@@ -113,6 +113,7 @@ public:
     void setAbandoned() { hashBlock = ABANDON_HASH; }
 
     const uint256 GetHash() const { return tx->GetHash(); }
+    const TxId GetId() const { return tx->GetId(); }
     bool IsCoinBase() const { return tx->IsCoinBase(); }
 };
 
