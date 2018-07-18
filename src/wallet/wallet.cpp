@@ -61,8 +61,6 @@ CFeeRate CWallet::minTxFee = CFeeRate(DEFAULT_TRANSACTION_MINFEE);
  */
 CFeeRate CWallet::fallbackFee = CFeeRate(DEFAULT_FALLBACK_FEE);
 
-const uint256 CMerkleTx::ABANDON_HASH(uint256S(
-    "0000000000000000000000000000000000000000000000000000000000000001"));
 
 /** @defgroup mapWallet
  *
@@ -4511,47 +4509,4 @@ CWalletKey::CWalletKey(int64_t nExpires) {
     nTimeExpires = nExpires;
 }
 
-void CMerkleTx::SetMerkleBranch(const CBlockIndex *pindex, int posInBlock) {
-    // Update the tx's hashBlock
-    hashBlock = pindex->GetBlockHash();
 
-    // Set the position of the transaction in the block.
-    nIndex = posInBlock;
-}
-
-int CMerkleTx::GetDepthInMainChain(const CBlockIndex *&pindexRet) const {
-    if (hashUnset()) {
-        return 0;
-    }
-
-    AssertLockHeld(cs_main);
-
-    // Find the block it claims to be in.
-    BlockMap::iterator mi = mapBlockIndex.find(hashBlock);
-    if (mi == mapBlockIndex.end()) {
-        return 0;
-    }
-
-    CBlockIndex *pindex = (*mi).second;
-    if (!pindex || !chainActive.Contains(pindex)) {
-        return 0;
-    }
-
-    pindexRet = pindex;
-    return ((nIndex == -1) ? (-1) : 1) *
-           (chainActive.Height() - pindex->nHeight + 1);
-}
-
-int CMerkleTx::GetBlocksToMaturity() const {
-    if (!IsCoinBase()) {
-        return 0;
-    }
-
-    return std::max(0, (COINBASE_MATURITY + 1) - GetDepthInMainChain());
-}
-
-bool CMerkleTx::AcceptToMemoryPool(const Amount nAbsurdFee,
-                                   CValidationState &state) {
-    return ::AcceptToMemoryPool(GetConfig(), mempool, state, tx, true, nullptr,
-                                false, nAbsurdFee);
-}
