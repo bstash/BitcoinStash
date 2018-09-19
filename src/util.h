@@ -61,6 +61,10 @@ bool SetupNetworking();
 
 template <typename... Args> bool error(const char *fmt, const Args &... args) {
     LogPrintf("ERROR: " + tfm::format(fmt, args...) + "\n");
+    //#define PRINT_ERROR //define for debugging problems in unit test
+    #ifdef PRINT_ERROR
+    std::cout<<"ERROR: "<< tfm::format(fmt, args...) << "\n";
+    #endif
     return false;
 }
 
