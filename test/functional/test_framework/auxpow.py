@@ -8,23 +8,55 @@
 
 import binascii
 import hashlib
+import struct
+from .mininode import ser_uint256, ser_uint256_vector
 
-def computeAuxpow (block, target, ok):
+class CAuxPow():
+    def __init__(self):
+        # coinbase tx of parent block that contains link to child block
+        self.tx = None 
+        # hash of block containing above coinbase
+        self.hashBlock = None 
+        # merkle branches proving that coinbase belongs in merkle trie
+        self.vMerkleBranch = [] 
+        # nIndex must always be zero
+        self.nIndex = 0
+        # merkle branch that places hash of child block in merkle trie 
+        self.vChainMerkleBranch = []
+        # index of the hash of the child block
+        self.nChainIndex = 0
+        # parent block header
+        self.parentBlock = None
+
+    def serialize(self):
+        r = b""
+        r += self.tx.serialize()
+        r += ser_uint256(self.hashBlock)
+        r += ser_uint256_vector(self.vMerkleBranch)
+        r += struct.pack("<i", self.nIndex)
+        r += ser_uint256_vector(self.vChainMerkleBranch)
+        r += struct.pack("<i", self.nChainIndex)
+        r += self.parentBlock.serialize()
+        return r
+
+def buildCoinbase(block):
+  coinbase = "fabe6d6d" #+ binascii.hexlify ("m" * 2)
+  coinbase += block
+  # size = 1 , nonce = 0, chainId = 1
+  coinbase += "01000000" + ("00" * 4) + "01000000"
+  return coinbase
+
+def computeAuxpow(block, target, ok):
   """
   Build an auxpow object (serialised as hex string) that solves
   (ok = True) or doesn't solve (ok = False) the block.
   """
-
-  # Start by building the merge-mining coinbase.  The merkle tree
-  # consists only of the block hash as root.
-  coinbase = "fabe" + binascii.hexlify ("m" * 2)
-  coinbase += block
-  coinbase += "01000000" + ("00" * 4)
+  coinbase = buildCoinbase(block)
 
   # Construct "vector" of transaction inputs.
   vin = "01"
   vin += ("00" * 32) + ("ff" * 4)
-  vin += ("%02x" % (len (coinbase) / 2)) + coinbase
+  vin += ("%02x" % (len (coinbase) // 2)) + coinbase
   vin += ("ff" * 4)
 
   # Build up the full coinbase transaction.  It consists only
@@ -79,12 +111,11 @@ def mineBlock (header, target, ok):
     assert data[79] < 255
     data[79] += 1
     hexData = binascii.hexlify (data)
-
     blockhash = doubleHashHex (hexData)
     if (ok and blockhash < target) or ((not ok) and blockhash > target):
       break
 
-  return (hexData, blockhash)
+  return (hexData.hex(), blockhash)
 
 def doubleHashHex (data):
   """
@@ -97,7 +128,6 @@ def doubleHashHex (data):
 
   hasher = hashlib.sha256 ()
   hasher.update (data)
-
   return reverseHex (hasher.hexdigest ())
 
 def reverseHex (data):
@@ -107,5 +137,4 @@ def reverseHex (data):
 
   b = bytearray (binascii.unhexlify (data))
   b.reverse ()
-
-  return binascii.hexlify (b)
+  return b.hex()#binascii.hexlify (b)
