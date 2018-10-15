@@ -13,6 +13,7 @@ using namespace std;
 CBlockHeader CBlockIndex::GetBlockHeader(const Config& config) const
 {
     CBlockHeader block;
+    block.nVersion       = nVersion;
 
     /* The CBlockIndex object's block header is missing the auxpow.
        So if this is an auxpow block, read it from disk instead.  We only
@@ -23,7 +24,6 @@ CBlockHeader CBlockIndex::GetBlockHeader(const Config& config) const
         return block;
     }
 
-    block.nVersion       = nVersion;
     if (pprev)
         block.hashPrevBlock = pprev->GetBlockHash();
     block.hashMerkleRoot = hashMerkleRoot;
