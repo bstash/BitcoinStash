@@ -943,7 +943,7 @@ CCriticalSection cs_auxblockCache;
 std::map<uint256, CBlock*> mapNewBlock;
 std::vector<std::unique_ptr<CBlockTemplate>> vNewBlockTemplate;
 
-void AuxMiningCheck()
+void AuxMiningCheck(const Config &config)
 {
   if(!g_connman)
     throw JSONRPCError(RPC_CLIENT_P2P_DISABLED,
@@ -962,7 +962,7 @@ void AuxMiningCheck()
      past the point of merge-mining start.  Check nevertheless.  */
   {
     LOCK(cs_main);
-    if (chainActive.Height() + 1 < Params().GetConsensus().nAuxpowStartHeight)
+    if (!IsBitcoinStashEnabled(config, chainActive.Tip()))
       throw std::runtime_error("mining auxblock method is not yet available");
   }
 }
@@ -971,7 +971,7 @@ void AuxMiningCheck()
 
 UniValue AuxMiningCreateBlock(const Config &config, const CScript& scriptPubKey)
 {
-    AuxMiningCheck();
+    AuxMiningCheck(config);
 
     LOCK(cs_auxblockCache);
 
@@ -1047,7 +1047,7 @@ bool AuxMiningSubmitBlock(const Config &config,
                           const std::string& hashHex,
                           const std::string& auxpowHex)
 {
-    AuxMiningCheck();
+    AuxMiningCheck(config);
 
     LOCK(cs_auxblockCache);
 

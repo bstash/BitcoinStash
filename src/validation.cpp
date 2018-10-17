@@ -628,26 +628,26 @@ bool IsMonolithEnabled(const Config &config, const CBlockIndex *pindexPrev) {
     return IsMonolithEnabled(config, pindexPrev->GetMedianTimePast());
 }
 
-static bool IsReplayProtectionEnabled(const Config &config,
+static bool IsBitcoinStashEnabled(const Config &config,
                                       int64_t nMedianTimePast) {
-    return nMedianTimePast >= gArgs.GetArg("-replayprotectionactivationtime",
-                                           config.GetChainParams()
-                                               .GetConsensus()
-                                               .bitcoinStashActivationTime);
+    return nMedianTimePast >=
+           gArgs.GetArg(
+               "-stashactivationtime",
+               config.GetChainParams().GetConsensus().bitcoinStashActivationTime);
 }
 
-static bool IsReplayProtectionEnabled(const Config &config,
-                                      const CBlockIndex *pindexPrev) {
+bool IsBitcoinStashEnabled(const Config &config,
+                           const CBlockIndex *pindexPrev) {
     if (pindexPrev == nullptr) {
         return false;
     }
 
-    return IsReplayProtectionEnabled(config, pindexPrev->GetMedianTimePast());
+    return IsBitcoinStashEnabled(config, pindexPrev->GetMedianTimePast());
 }
 
-static bool IsReplayProtectionEnabledForCurrentBlock(const Config &config) {
+static bool IsBitcoinStashEnabledForCurrentBlock(const Config &config) {
     AssertLockHeld(cs_main);
-    return IsReplayProtectionEnabled(config, chainActive.Tip());
+    return IsBitcoinStashEnabled(config, chainActive.Tip());
 }
 
 /**
@@ -1004,7 +1004,7 @@ static bool AcceptToMemoryPoolWorker(
             extraFlags |= SCRIPT_ENABLE_MONOLITH_OPCODES;
         }
 
-        if (IsReplayProtectionEnabledForCurrentBlock(config)) {
+        if (IsBitcoinStashEnabledForCurrentBlock(config)) {
             extraFlags |= SCRIPT_ENABLE_REPLAY_PROTECTION;
         }
 
@@ -2017,7 +2017,7 @@ static uint32_t GetBlockScriptFlags(const Config &config,
 
     // We make sure this node will have replay protection during the next hard
     // fork.
-    if (IsReplayProtectionEnabled(config, pChainTip)) {
+    if (IsBitcoinStashEnabled(config, pChainTip)) {
         flags |= SCRIPT_ENABLE_REPLAY_PROTECTION;
     }
 
@@ -2355,8 +2355,8 @@ static bool ConnectBlock(const Config &config, const CBlock &block,
     // If we just activated the replay protection with that block, it means
     // transaction in the mempool are now invalid. As a result, we need to clear
     // the mempool.
-    if (IsReplayProtectionEnabled(config, pindex) &&
-        !IsReplayProtectionEnabled(config, pindex->pprev)) {
+    if (IsBitcoinStashEnabled(config, pindex) &&
+        !IsBitcoinStashEnabled(config, pindex->pprev)) {
         mempool.clear();
     }
 
@@ -2669,8 +2669,8 @@ static bool DisconnectTip(const Config &config, CValidationState &state,
     //
     // Samewise, if this block enabled the monolith opcodes, then we need to
     // clear the mempool of any transaction using them.
-    if ((IsReplayProtectionEnabled(config, pindexDelete) &&
-         !IsReplayProtectionEnabled(config, pindexDelete->pprev)) ||
+    if ((IsBitcoinStashEnabled(config, pindexDelete) &&
+         !IsBitcoinStashEnabled(config, pindexDelete->pprev)) ||
         (IsMonolithEnabled(config, pindexDelete) &&
          !IsMonolithEnabled(config, pindexDelete->pprev))) {
         mempool.clear();
@@ -3796,7 +3796,7 @@ static bool ContextualCheckBlock(const Config &config, const CBlock &block,
 
     // Auxpow: After auxpow activation height, enforce that the coinbase
     // must cointain a chain Id, if it also has a merge mining header
-    if (nHeight >= consensusParams.nAuxpowStartHeight) {
+    if (IsBitcoinStashEnabled(config, pindexPrev)) {
 
         if (!CheckAuxPowCoinbase(block.vtx[0]->vin[0].scriptSig,
                             config.GetChainParams().GetConsensus().nAuxpowChainId)){

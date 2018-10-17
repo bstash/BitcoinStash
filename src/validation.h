@@ -446,6 +446,9 @@ bool IsDAAEnabled(const Config &config, const CBlockIndex *pindexPrev);
 /** Check if May 15, 2018 HF has activated. */
 bool IsMonolithEnabled(const Config &config, const CBlockIndex *pindexPrev);
 
+bool IsBitcoinStashEnabled(const Config &config, const CBlockIndex *pindexPrev);
+
+
 /**
  * (try to) add transaction to memory pool
  */
