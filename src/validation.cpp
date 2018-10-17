@@ -633,7 +633,7 @@ static bool IsReplayProtectionEnabled(const Config &config,
     return nMedianTimePast >= gArgs.GetArg("-replayprotectionactivationtime",
                                            config.GetChainParams()
                                                .GetConsensus()
-                                               .magneticAnomalyActivationTime);
+                                               .bitcoinStashActivationTime);
 }
 
 static bool IsReplayProtectionEnabled(const Config &config,

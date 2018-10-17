@@ -142,8 +142,13 @@ public:
         // May 15, 2018 hard fork
         consensus.monolithActivationTime = 1526400000;
 
-        // Nov 15, 2018 hard fork
-        consensus.magneticAnomalyActivationTime = 1542300000;
+        // Nov 15, 2018 Bitcoin Stash hard fork
+        consensus.bitcoinStashActivationTime = 1542300000;
+
+        // Auxpow params
+        consensus.nAuxpowChainId = 0x0044;
+        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
+        consensus.nLegacyBlocksBefore = 371337; //TODO: Change Me
 
         /**
          * The message start string is designed to be unlikely to occur in
@@ -159,11 +164,6 @@ public:
         netMagic[2] = 0xf3;
         netMagic[3] = 0xe8;
         nDefaultPort = 10101;
-
-        // Auxpow params
-        consensus.nAuxpowChainId = 0x0044;
-        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
-        consensus.nLegacyBlocksBefore = 371337; //TODO: Change Me
 
         nPruneAfterHeight = 100000;
 
@@ -326,8 +326,13 @@ public:
         // May 15, 2018 hard fork
         consensus.monolithActivationTime = 1526400000;
 
-        // Nov 15, 2018 hard fork
-        consensus.magneticAnomalyActivationTime = 1542300000;
+        // Nov 15, 2018 Bitcoin Stash hard fork
+        consensus.bitcoinStashActivationTime = 1542300000;
+
+        // Auxpow params
+        consensus.nAuxpowChainId = 0x0043;
+        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
+        consensus.nLegacyBlocksBefore = -1;
 
         diskMagic[0] = 0x0b;
         diskMagic[1] = 0x11;
@@ -338,12 +343,6 @@ public:
         netMagic[2] = 0xf3;
         netMagic[3] = 0xf4;
         nDefaultPort = 10201;
-
-
-        // Auxpow params
-        consensus.nAuxpowChainId = 0x0043;
-        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
-        consensus.nLegacyBlocksBefore = -1;
 
         nPruneAfterHeight = 1000;
 
@@ -461,8 +460,12 @@ public:
         // May 15, 2018 hard fork.
         consensus.monolithActivationTime = 1526400000;
 
-        // Nov 15, 2018 hard fork
-        consensus.magneticAnomalyActivationTime = 1542300000;
+        // Nov 15, 2018 Bitcoin Stash hard fork
+        consensus.bitcoinStashActivationTime = 1542300000;
+
+        // Auxpow params
+        consensus.nAuxpowChainId = 0x0042;
+        consensus.nLegacyBlocksBefore = 0;
 
         diskMagic[0] = 0xfa;
         diskMagic[1] = 0xbf;
@@ -473,10 +476,6 @@ public:
         netMagic[2] = 0xbf;
         netMagic[3] = 0xfa;
         nDefaultPort = 10301;
-
-        // Auxpow params
-        consensus.nAuxpowChainId = 0x0042;
-        consensus.nLegacyBlocksBefore = 0;
 
         nPruneAfterHeight = 1000;
 

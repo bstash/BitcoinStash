@@ -54,8 +54,8 @@ struct Params {
     int daaHeight;
     /** Unix time used for MTP activation of May 15 2018, hardfork */
     int monolithActivationTime;
-    /** Unix time used for MTP activation of Nov 15 2018, hardfork */
-    int magneticAnomalyActivationTime;
+    /** Unix time used for MTP activation of Nov 15 2018, Bitcoin Stash hardfork */
+    int bitcoinStashActivationTime;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks
      * in a retargeting period, (nPowTargetTimespan / nPowTargetSpacing) which
