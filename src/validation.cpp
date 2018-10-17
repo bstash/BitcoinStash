@@ -3691,6 +3691,14 @@ static bool ContextualCheckBlockHeader(const Config &config,
             strprintf("rejected nVersion=0x%08x block", block.nVersion));
     }
 
+    // check that we don't get auxpow blocks before bitcoin stash hard fork
+    // CheckBlockHeader() will check if a block is marked as not auxpow but
+    // has auxpow on it
+    if  (!IsBitcoinStashEnabled(config, pindexPrev) && block.IsAuxPow()){
+        return state.Invalid(false, REJECT_INVALID, "auxpow-too-early",
+                             "found auxpow block before bitcoin stash hard fork");
+    }
+
     return true;
 }
 
