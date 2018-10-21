@@ -79,8 +79,6 @@ struct Params {
 
     /** Auxpow parameters */
     int32_t nAuxpowChainId;
-    int nAuxpowStartHeight;
-    int nLegacyBlocksBefore; // -1 for "always allow"
 
 };
 } // namespace Consensus

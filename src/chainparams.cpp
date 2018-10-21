@@ -147,8 +147,6 @@ public:
 
         // Auxpow params
         consensus.nAuxpowChainId = 0x0044;
-        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
-        consensus.nLegacyBlocksBefore = 371337; //TODO: Change Me
 
         /**
          * The message start string is designed to be unlikely to occur in
@@ -327,12 +325,11 @@ public:
         consensus.monolithActivationTime = 1526400000;
 
         // Nov 15, 2018 Bitcoin Stash hard fork
-        consensus.bitcoinStashActivationTime = 1542300000;
+        // (testnet activates 10/24/18 18:00)
+        consensus.bitcoinStashActivationTime = 1540404000;
 
         // Auxpow params
         consensus.nAuxpowChainId = 0x0043;
-        consensus.nAuxpowStartHeight = 371337; //TODO: Change Me
-        consensus.nLegacyBlocksBefore = -1;
 
         diskMagic[0] = 0x0b;
         diskMagic[1] = 0x11;
@@ -460,12 +457,11 @@ public:
         // May 15, 2018 hard fork.
         consensus.monolithActivationTime = 1526400000;
 
-        // Nov 15, 2018 Bitcoin Stash hard fork
-        consensus.bitcoinStashActivationTime = 1542300000;
+        // Nov 15, 2018 Bitcoin Stash hard fork, always activated on regtest
+        consensus.bitcoinStashActivationTime = 0;
 
         // Auxpow params
         consensus.nAuxpowChainId = 0x0042;
-        consensus.nLegacyBlocksBefore = 0;
 
         diskMagic[0] = 0xfa;
         diskMagic[1] = 0xbf;
