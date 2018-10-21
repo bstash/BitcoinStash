@@ -1055,6 +1055,8 @@ UniValue AuxMiningCreateBlock(const Config &config, const CScript& scriptPubKey)
     result.pushKV("_target", HexStr(BEGIN(target), END(target)));
     //TODO: is this correct? 
     result.pushKV("chainid", config.GetChainParams().GetConsensus().nAuxpowChainId);
+    std::vector<unsigned char> simple_coinbase_data = BuildCoinbaseData(pblock->GetHash(), 0, 0, 420);
+    result.pushKV("auxpowcoinbasedata", HexStr(simple_coinbase_data.begin(), simple_coinbase_data.end()));
     return result;
 }
 
@@ -1108,6 +1110,8 @@ UniValue createauxblock(const Config &config, const JSONRPCRequest& request)
             "  \"bits\"               (string) compressed target of the block\n"
             "  \"height\"             (numeric) height of the block\n"
             "  \"_target\"            (string) target in reversed byte order, deprecated\n"
+            "  \"auxpowcoinbasedata\" (string) hex auxpow coinbase data for inserting into"
+            " the parent block, assuming there are no other child chain\n"
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("createauxblock", "\"address\"")
