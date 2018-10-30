@@ -145,18 +145,33 @@ UniValue generateBlocks(const Config &config,
             IncrementExtraNonce(config, pblock, chainActive.Tip(), nExtraNonce);
         }
 
-        int32_t parentChainId = 42;
-        CAuxPow::initAuxPow(*pblock, parentChainId);
-        CPureBlockHeader& miningHeader = pblock->auxpow->parentBlock;
-        while (nMaxTries > 0 && miningHeader.nNonce < nInnerLoopCount && !CheckProofOfWork(miningHeader.GetHash(), pblock->nBits, config)) {
-            ++miningHeader.nNonce;
-            --nMaxTries;
+        int nonce = 0;
+        if (IsBitcoinStashEnabled(config, chainActive.Tip())) {
+            int32_t parentChainId = 42;
+            CAuxPow::initAuxPow(*pblock, parentChainId);
+            CPureBlockHeader& miningHeader = pblock->auxpow->parentBlock;
+            while (nMaxTries > 0 && miningHeader.nNonce < nInnerLoopCount && !CheckAuxPowHeader(*pblock, config)) {
+                ++miningHeader.nNonce;
+                --nMaxTries;
+            }
+            nonce = miningHeader.nNonce;
+
         }
+        else {
+            while (nMaxTries > 0 && pblock->nNonce < nInnerLoopCount && !CheckAuxPowHeader(*pblock, config)) {
+                ++pblock->nNonce;
+                --nMaxTries;
+            }
+            nonce = pblock->nNonce;
+
+        }
+
+
 
         if (nMaxTries == 0) {
             break;
         }
-        if (miningHeader.nNonce == nInnerLoopCount) {
+        if (nonce == nInnerLoopCount) {
             continue;
         }
 
