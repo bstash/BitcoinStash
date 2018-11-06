@@ -179,22 +179,7 @@ public:
         // subset of possible options.
         // Bitcoin ABC seeder
         vSeeds.push_back(
-            CDNSSeedData("bitcoinabc.org", "seed.bitcoinabc.org", true));
-        // bitcoinforks seeders
-        vSeeds.push_back(CDNSSeedData("bitcoinforks.org",
-                                      "seed-abc.bitcoinforks.org", true));
-        // BU backed seeder
-        vSeeds.push_back(CDNSSeedData("bitcoinunlimited.info",
-                                      "btccash-seeder.bitcoinunlimited.info",
-                                      true));
-        // Bitprim
-        vSeeds.push_back(CDNSSeedData("bitprim.org", "seed.bitprim.org", true));
-        // Amaury SÉCHET
-        vSeeds.push_back(
-            CDNSSeedData("deadalnix.me", "seed.deadalnix.me", true));
-        // criptolayer.net
-        vSeeds.push_back(
-            CDNSSeedData("criptolayer.net", "seeder.criptolayer.net", true));
+            CDNSSeedData("bstash.org", "dnseed.bstash.org", true));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<uint8_t>(1, 0);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<uint8_t>(1, 5);
@@ -357,20 +342,8 @@ public:
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
         // Bitcoin ABC seeder
-        vSeeds.push_back(CDNSSeedData("bitcoinabc.org",
-                                      "testnet-seed.bitcoinabc.org", true));
-        // bitcoinforks seeders
-        vSeeds.push_back(CDNSSeedData(
-            "bitcoinforks.org", "testnet-seed-abc.bitcoinforks.org", true));
-        // Bitprim
-        vSeeds.push_back(
-            CDNSSeedData("bitprim.org", "testnet-seed.bitprim.org", true));
-        // Amaury SÉCHET
-        vSeeds.push_back(
-            CDNSSeedData("deadalnix.me", "testnet-seed.deadalnix.me", true));
-        // criptolayer.net
-        vSeeds.push_back(CDNSSeedData("criptolayer.net",
-                                      "testnet-seeder.criptolayer.net", true));
+        vSeeds.push_back(CDNSSeedData("bstash.org",
+                                      "testnet-seed.bstash.org", true));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<uint8_t>(1, 111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<uint8_t>(1, 196);
