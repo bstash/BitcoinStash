@@ -448,6 +448,7 @@ bool IsMonolithEnabled(const Config &config, const CBlockIndex *pindexPrev);
 
 bool IsBitcoinStashEnabled(const Config &config, const CBlockIndex *pindexPrev);
 
+bool IsBitcoinStashEnabled(const Config &config, int64_t nMedianTimePast);
 
 /**
  * (try to) add transaction to memory pool

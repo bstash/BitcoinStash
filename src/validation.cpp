@@ -618,8 +618,7 @@ bool IsMonolithEnabled(const Config &config, const CBlockIndex *pindexPrev) {
     return IsMonolithEnabled(config, pindexPrev->GetMedianTimePast());
 }
 
-static bool IsBitcoinStashEnabled(const Config &config,
-                                      int64_t nMedianTimePast) {
+bool IsBitcoinStashEnabled(const Config &config, int64_t nMedianTimePast) {
     return nMedianTimePast >=
            gArgs.GetArg(
                "-stashactivationtime",

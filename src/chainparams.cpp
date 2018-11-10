@@ -144,6 +144,7 @@ public:
 
         // Nov 15, 2018 Bitcoin Stash hard fork
         consensus.bitcoinStashActivationTime = 1542300000;
+        consensus.bitcoinStashRetagetnBits = 0x1a0fffff;
 
         // Auxpow params
         consensus.nAuxpowChainId = 0x0044;
@@ -312,6 +313,7 @@ public:
         // Nov 15, 2018 Bitcoin Stash hard fork
         // (testnet activates 10/24/18 18:00)
         consensus.bitcoinStashActivationTime = 1540404000;
+        consensus.bitcoinStashRetagetnBits = 0x1d00ffff;
 
         // Auxpow params
         consensus.nAuxpowChainId = 0x0043;
@@ -432,6 +434,7 @@ public:
 
         // Nov 15, 2018 Bitcoin Stash hard fork, always activated on regtest
         consensus.bitcoinStashActivationTime = 0;
+        consensus.bitcoinStashRetagetnBits = 0x207fffff;
 
         // Auxpow params
         consensus.nAuxpowChainId = 0x0042;

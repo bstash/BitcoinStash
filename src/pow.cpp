@@ -92,6 +92,7 @@ static uint32_t GetNextEDAWorkRequired(const CBlockIndex *pindexPrev,
     return nPow.GetCompact();
 }
 
+
 uint32_t GetNextWorkRequired(const CBlockIndex *pindexPrev,
                              const CBlockHeader *pblock, const Config &config) {
     const Consensus::Params &params = config.GetChainParams().GetConsensus();
@@ -104,6 +105,16 @@ uint32_t GetNextWorkRequired(const CBlockIndex *pindexPrev,
     // Special rule for regtest: we never retarget.
     if (params.fPowNoRetargeting) {
         return pindexPrev->nBits;
+    }
+
+    // Retarget upon Bitcoin Stash hard fork activation
+    if (IsBitcoinStashEnabled(config, pindexPrev->GetMedianTime())){
+        // If Bstash activates on next block, look back 146 blocks from there
+        // due to DAA needing that many blocks
+        int lookbackHeight = pindexPrev->nHeight+1-146;
+        if (!IsBitcoinStashEnabled(config, pindexPrev->GetAncestor(lookbackHeight))){
+            return params.bitcoinStashRetagetnBits;
+        }
     }
 
     if (IsDAAEnabled(config, pindexPrev)) {

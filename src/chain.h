@@ -403,6 +403,23 @@ public:
         return pbegin[(pend - pbegin) / 2];
     }
 
+    // use this if you want to know what GetMedianTimePast
+    // would be for a child block of this one
+    int64_t GetMedianTime() const {
+        int64_t pmedian[nMedianTimeSpan];
+        int64_t *pbegin = &pmedian[nMedianTimeSpan-1];
+        int64_t *pend = &pmedian[nMedianTimeSpan];
+        pmedian[nMedianTimeSpan-1] = this->nTime;
+
+        const CBlockIndex *pindex = this;
+        for (int i = 0; i < nMedianTimeSpan-1 && pindex;
+             i++, pindex = pindex->pprev) {
+            *(--pbegin) = pindex->GetBlockTime();
+        }
+        std::sort(pbegin, pend);
+        return pbegin[(pend - pbegin) / 2];
+    }
+
     std::string ToString() const {
         return strprintf(
             "CBlockIndex(pprev=%p, nHeight=%d, merkle=%s, hashBlock=%s)", pprev,

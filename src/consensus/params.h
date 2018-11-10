@@ -56,6 +56,8 @@ struct Params {
     int monolithActivationTime;
     /** Unix time used for MTP activation of Nov 15 2018, Bitcoin Stash hardfork */
     int bitcoinStashActivationTime;
+    /** nBits to retarget to once BitcoinStash hardfork takes place */
+    uint32_t bitcoinStashRetagetnBits;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks
      * in a retargeting period, (nPowTargetTimespan / nPowTargetSpacing) which
