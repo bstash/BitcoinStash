@@ -66,7 +66,44 @@ double GetDifficulty(const CBlockIndex *blockindex) {
     return GetDifficultyFromBits(blockindex->nBits);
 }
 
-UniValue blockheaderToJSON(const CBlockIndex *blockindex) {
+UniValue AuxpowToJSON(const Config &config, const CAuxPow& auxpow)
+{
+    UniValue result(UniValue::VOBJ);
+
+    {
+        UniValue tx(UniValue::VOBJ);
+        //tx.pushKV("hex", EncodeHexTx(*auxpow.tx));
+        TxToJSON(config, *auxpow.tx, auxpow.parentBlock.GetHash(), tx);
+        result.push_back(Pair("tx", tx));
+    }
+
+    result.push_back(Pair("index", auxpow.nIndex));
+    result.push_back(Pair("chainindex", auxpow.nChainIndex));
+
+    {
+        UniValue branch(UniValue::VARR);
+        for (const auto& node : auxpow.vMerkleBranch)
+            branch.push_back(node.GetHex());
+        result.push_back(Pair("merklebranch", branch));
+    }
+
+    {
+        UniValue branch(UniValue::VARR);
+        for (const auto& node : auxpow.vChainMerkleBranch)
+            branch.push_back(node.GetHex());
+        result.push_back(Pair("chainmerklebranch", branch));
+    }
+
+    CDataStream ssParent(SER_NETWORK, PROTOCOL_VERSION);
+    ssParent << auxpow.parentBlock;
+    const std::string strHex = HexStr(ssParent.begin(), ssParent.end());
+    result.push_back(Pair("parentblock", strHex));
+
+    return result;
+}
+
+
+UniValue blockheaderToJSON(const Config &config, const CBlockIndex *blockindex) {
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("hash", blockindex->GetBlockHash().GetHex()));
     int confirmations = -1;
@@ -95,6 +132,11 @@ UniValue blockheaderToJSON(const CBlockIndex *blockindex) {
     CBlockIndex *pnext = chainActive.Next(blockindex);
     if (pnext) {
         result.push_back(Pair("nextblockhash", pnext->GetBlockHash().GetHex()));
+    }
+
+    CBlockHeader header = blockindex->GetBlockHeader(config);
+    if (header.IsAuxPow()){
+		result.push_back(Pair("auxpow", AuxpowToJSON(config, *header.auxpow)));
     }
     return result;
 }
@@ -753,7 +795,7 @@ UniValue getblockheader(const Config &config, const JSONRPCRequest &request) {
         return strHex;
     }
 
-    return blockheaderToJSON(pblockindex);
+    return blockheaderToJSON(config, pblockindex);
 }
 
 UniValue getblock(const Config &config, const JSONRPCRequest &request) {

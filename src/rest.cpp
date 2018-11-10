@@ -194,7 +194,7 @@ static bool rest_headers(Config &config, HTTPRequest *req,
         case RF_JSON: {
             UniValue jsonHeaders(UniValue::VARR);
             for (const CBlockIndex *pindex : headers) {
-                jsonHeaders.push_back(blockheaderToJSON(pindex));
+                jsonHeaders.push_back(blockheaderToJSON(config, pindex));
             }
             std::string strJSON = jsonHeaders.write() + "\n";
             req->WriteHeader("Content-Type", "application/json");
