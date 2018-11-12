@@ -266,7 +266,7 @@ public:
         // 000000002104c8c45e99a8853285a3b592602a3ccde2b832481da85e9e4ba182
         consensus.BIP66Height = 330776;
         consensus.powLimit = uint256S(
-            "00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+            "0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         // two weeks
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60;
         consensus.nPowTargetSpacing = 10 * 60;
@@ -302,18 +302,18 @@ public:
             "0000000000327972b8470c11755adf8f4319796bafae01f5a6650490b98a17db");
 
         // August 1, 2017 hard fork
-        consensus.uahfHeight = 1155875;
+        consensus.uahfHeight = 0;
 
         // November 13, 2017 hard fork
-        consensus.daaHeight = 1188697;
+        consensus.daaHeight = 0;
 
         // May 15, 2018 hard fork
-        consensus.monolithActivationTime = 1526400000;
+        consensus.monolithActivationTime = 0;
 
         // Nov 15, 2018 Bitcoin Stash hard fork
         // (testnet activates 10/24/18 18:00)
-        consensus.bitcoinStashActivationTime = 1540404000;
-        consensus.bitcoinStashRetagetnBits = 0x1d00ffff;
+        consensus.bitcoinStashActivationTime = 1542148200;
+        consensus.bitcoinStashRetagetnBits = 0x1f00ffff;
 
         // Auxpow params
         consensus.nAuxpowChainId = 0x0043;
@@ -325,7 +325,7 @@ public:
         netMagic[0] = 0xf4;
         netMagic[1] = 0xe5;
         netMagic[2] = 0xf3;
-        netMagic[3] = 0xf4;
+        netMagic[3] = 0x14;
         nDefaultPort = 10201;
 
         nPruneAfterHeight = 1000;
@@ -363,14 +363,7 @@ public:
 
         checkpointData = {
             .mapCheckpoints = {
-                {546, uint256S("000000002a936ca763904c3c35fce2f3556c559c0214345"
-                               "d31b1bcebf76acb70")},
-                // UAHF fork block.
-                {1155875, uint256S("00000000f17c850672894b9a75b63a1e72830bbd5f4"
-                                   "c8889b5c1a80e7faef138")},
-                // Nov, 13. DAA activation block.
-                {1188697, uint256S("0000000000170ed0918077bde7b4d36cc4c91be69fa"
-                                   "09211f748240dabe047fb")},
+                {545, uint256S("c763b331864f60133b721da4a2fee1e66942a24380948dcadc7ff0b3f0a3b112")},
             }};
 
         // Data as of block
