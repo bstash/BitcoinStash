@@ -1767,6 +1767,43 @@ UniValue getchaintxstats(const Config &config, const JSONRPCRequest &request) {
     return ret;
 }
 
+UniValue hardforkstatus(const Config &config, const JSONRPCRequest &request) {
+    if (request.fHelp || request.params.size() > 1) {
+        throw std::runtime_error(
+            "hardforkstatus (height) \n"
+            "\nReturns thet status of hardforks at current height. If height "
+            "is specified, return status at that height\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"bitcoinstash\": xxxxx,        (bool) True if bitcoinstash "
+            "hard fork is activated.\n"
+            "}\n"
+            "\nExamples:\n" +
+            HelpExampleCli("hardforkstatus", ""));
+
+    }
+
+    LOCK(cs_main);
+    UniValue ret(UniValue::VOBJ);
+    bool bstash_enabled;
+
+    if (request.params.size() > 0) {
+        int nHeight = request.params[0].get_int();
+        if (nHeight < 0 || nHeight > chainActive.Height()) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+        }
+        bstash_enabled = IsBitcoinStashEnabled(config, chainActive[nHeight]);
+    }
+    else {
+        bstash_enabled = IsBitcoinStashEnabled(config, chainActive.Tip());
+    }
+
+    ret.push_back(Pair("bitcoinstash", bstash_enabled));
+    return ret;
+
+}
+
+
 // clang-format off
 static const CRPCCommand commands[] = {
     //  category            name                      actor (function)        okSafe argNames
@@ -1790,7 +1827,7 @@ static const CRPCCommand commands[] = {
     { "blockchain",         "pruneblockchain",        pruneblockchain,        true,  {"height"} },
     { "blockchain",         "verifychain",            verifychain,            true,  {"checklevel","nblocks"} },
     { "blockchain",         "preciousblock",          preciousblock,          true,  {"blockhash"} },
-
+    { "blockchain",         "hardforkstatus",         hardforkstatus,         true,  {"height"} },
     /* Not shown in help */
     { "hidden",             "invalidateblock",        invalidateblock,        true,  {"blockhash"} },
     { "hidden",             "reconsiderblock",        reconsiderblock,        true,  {"blockhash"} },
