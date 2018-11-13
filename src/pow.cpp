@@ -274,9 +274,17 @@ uint32_t GetNextCashWorkRequired(const CBlockIndex *pindexPrev,
         return UintToArith256(params.powLimit).GetCompact();
     }
 
-    // Compute the difficulty based on the full adjustment interval.
     const uint32_t nHeight = pindexPrev->nHeight;
-    assert(nHeight >= params.DifficultyAdjustmentInterval());
+    // Special difficulty rule for testnet:
+    // Since we activate DAA at genesis for testnet,
+    // We just return min dificulty for 146 blocks
+    //
+    // Note that this doesn't activate on mainnet since
+    // DAA doesn't activate before block 146
+    if (nHeight <= 146){
+        return UintToArith256(params.powLimit).GetCompact();
+
+    }
 
     // Get the last suitable block of the difficulty interval.
     const CBlockIndex *pindexLast = GetSuitableBlock(pindexPrev);
