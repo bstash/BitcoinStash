@@ -973,13 +973,6 @@ void AuxMiningCheck(const Config &config)
     throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD,
                        "Bitcoin Stash is downloading blocks...");
 
-  /* This should never fail, since the chain is already
-     past the point of merge-mining start.  Check nevertheless.  */
-  {
-    LOCK(cs_main);
-    if (!IsBitcoinStashEnabled(config, chainActive.Tip()))
-      throw std::runtime_error("mining auxblock method is not yet available");
-  }
 }
 
 } // anonymous namespace
