@@ -1,44 +1,30 @@
-[Bitcoin ABC](https://www.bitcoinabc.org)
+[Bitcoin Stash](https://www.bstash.org)
 ===========
 
-The goal of Bitcoin ABC is to create sound money that is usable by everyone in
-the world. We believe this is a civilization-changing technology which will
-dramatically increase human flourishing, freedom, and prosperity. The project
-aims to achieve this goal by implementing a series of optimizations and
-protocol upgrades that will enable peer-to-peer digital cash to scale many
-orders of magnitude beyond current limits.
+Bitcoin Stash is a cryptocurrency that is hard forked from Bitcoin Cash. We are a group of former Bitcoin Cash developers and community members that have become dismayed at the current outlook of BCH. It utilizes merge mining to solve the problem of bad actors attempting to hijack the chain and performing 51% attacks with minimal effort. For more information, please follow us on the below communication channels.
 
-What is Bitcoin Cash?
+Official Twitter:
+https://twitter.com/bitcoinstash
+
+Official Website:
+https://bstash.org
+
+
+Basic Specs
 ---------------------
+Mainnet P2P port - 10101
+Mainnet RPC port - 10102
 
-[Bitcoin Cash](https://www.bitcoincash.org/) is an experimental digital
-currency that enables instant payments to anyone, anywhere in the world. It
-uses peer-to-peer technology to operate with no central authority: managing
-transactions and issuing money are carried out collectively by the network.
-Bitcoin Cash is a descendant of Bitcoin. It became a separate currency from
-the version supported by Bitcoin Core when the two split on August 1, 2017.
-Bitcoin Cash and the Bitcoin Core version of Bitcoin share the same
-transaction history up until the split.
+Testnet P2P port - 10201
+Testnet RPC port - 10202
 
-What is Bitcoin ABC?
---------------------
+Regtest P2P port - 10301
+Regtest RPC port - 10302
 
-Bitcoin ABC is the name of open-source software which enables the use of
-Bitcoin Cash. It is a fork of the [Bitcoin Core](https://bitcoincore.org)
-software project.
 
 License
 -------
 
-Bitcoin ABC is released under the terms of the MIT license. See
-[COPYING](COPYING) for more information or see
-https://opensource.org/licenses/MIT.
+Bitcoin Stash is released under the terms of the MIT license. See https://opensource.org/licenses/MIT.
 
-Development Process
--------------------
 
-This Github repository contains only source code of releases.
-
-Bitcoin ABC development takes place at https://reviews.bitcoinabc.org/
-
-If you would like to contribute, please read [CONTRIBUTING](CONTRIBUTING.md)
