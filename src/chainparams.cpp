@@ -234,6 +234,9 @@ public:
                 // Monolith activation.
                 {530359, uint256S("0000000000000000011ada8bd08f46074f44a8f15539"
                                   "6f43e38acf9501c49103")},
+                // Bitcoinstash activation.
+                {556766, uint256S("0000000000000733ab445c9e34afd849e64b4cff6acc"
+                                  "0bdb7c38ff699f0b7e2d")},
             }};
 
         // Data as of block
