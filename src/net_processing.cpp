@@ -1494,7 +1494,26 @@ static bool ProcessMessage(const Config &config, CNode *pfrom,
         if (!vRecv.empty()) {
             vRecv >> LIMITED_STRING(strSubVer, MAX_SUBVERSION_LENGTH);
             cleanSubVer = SanitizeString(strSubVer);
+
+            if(cleanSubVer.find("Bitcoin ABC") != std::string::npos ||
+               cleanSubVer.find("BUCash") != std::string::npos ||
+               cleanSubVer.find("Bitcoin SV") != std::string::npos ){
+
+                // disconnect from ABC/SV/BU nodes
+                LogPrintf("peer=%d is an ABC/SV node %i; disconnecting\n",
+                          pfrom->id, nVersion);
+                connman.PushMessage(
+                    pfrom,
+                    CNetMsgMaker(INIT_PROTO_VERSION)
+                        .Make(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
+                              strprintf("Node is ABC/SV node")));
+                pfrom->fDisconnect = true;
+                return false;
+            }
+
         }
+
+
         if (!vRecv.empty()) {
             vRecv >> nStartingHeight;
         }
