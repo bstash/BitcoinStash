@@ -10,6 +10,18 @@ Official Website:
 https://bstash.org
 
 
+Installation
+---------------------
+Please compile from source, here are our build instructions for [OpenBSD](https://github.com/bstash/BitcoinStash/blob/master/doc/build-openbsd.md), [Unix](https://github.com/bstash/BitcoinStash/blob/master/doc/build-unix.md), [OSX](https://github.com/bstash/BitcoinStash/blob/master/doc/build-osx.md), and [Windows](https://github.com/bstash/BitcoinStash/blob/master/doc/build-windows.md).
+
+Binaries are coming soon.
+
+
+Mining
+---------------------
+Bitcoin Stash can be merge mined with any double SHA256 coins such as Bitcoin and Bitcoin Cash (both ABC and SV variant). Please check out our [merge mining guide](https://github.com/bstash/BitcoinStash-MergeMining-Guide) for instructions and code examples.
+
+
 Basic Specs
 ---------------------
 Mainnet P2P port - 10101
