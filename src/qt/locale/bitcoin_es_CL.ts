@@ -772,7 +772,7 @@
 </translation>
     </message>
     <message>
-        <source>Bitcoin ABC</source>
+        <source>Bitcoin Stash</source>
         <translation>bitcoin abc</translation>
     </message>
     <message>

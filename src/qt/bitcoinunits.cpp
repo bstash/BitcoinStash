@@ -33,11 +33,11 @@ bool BitcoinUnits::valid(int unit) {
 QString BitcoinUnits::name(int unit) {
     switch (unit) {
         case BCH:
-            return QString("BCH");
+            return QString("BSH");
         case mBCH:
-            return QString("mBCH");
+            return QString("mBSH");
         case uBCH:
-            return QString::fromUtf8("μBCH");
+            return QString::fromUtf8("μBSH");
         default:
             return QString("???");
     }

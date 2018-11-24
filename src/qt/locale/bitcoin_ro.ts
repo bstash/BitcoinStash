@@ -748,8 +748,8 @@
 <context>
     <name>bitcoin-abc</name>
     <message>
-        <source>Bitcoin ABC</source>
-        <translation>Bitcoin ABC</translation>
+        <source>Bitcoin Stash</source>
+        <translation>Bitcoin Stash</translation>
     </message>
     <message>
         <source>Information</source>

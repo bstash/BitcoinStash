@@ -420,7 +420,7 @@
 <context>
     <name>bitcoin-abc</name>
     <message>
-        <source>Bitcoin ABC</source>
+        <source>Bitcoin Stash</source>
         <translation>Биткойн ядро</translation>
     </message>
     </context>

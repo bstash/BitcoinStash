@@ -784,7 +784,7 @@
         <translation>Opsionet:</translation>
     </message>
     <message>
-        <source>Bitcoin ABC</source>
+        <source>Bitcoin Stash</source>
         <translation>ABC Bitcoin</translation>
     </message>
     <message>

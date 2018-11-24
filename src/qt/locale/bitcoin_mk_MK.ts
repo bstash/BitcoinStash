@@ -578,7 +578,7 @@
         <translation>Опции:</translation>
     </message>
     <message>
-        <source>Bitcoin ABC</source>
+        <source>Bitcoin Stash</source>
         <translation>Биткоин ABC</translation>
     </message>
     <message>

@@ -2558,8 +2558,8 @@
         <translation>Executa en segon pla com a programa dimoni i accepta ordes</translation>
     </message>
     <message>
-        <source>Bitcoin ABC</source>
-        <translation>Bitcoin ABC</translation>
+        <source>Bitcoin Stash</source>
+        <translation>Bitcoin Stash</translation>
     </message>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>

@@ -3953,8 +3953,8 @@
     </message>
     <message>
         <location line="-360"/>
-        <source>Bitcoin ABC</source>
-        <translation type="unfinished">Bitcoin ABC</translation>
+        <source>Bitcoin Stash</source>
+        <translation type="unfinished">Bitcoin Stash</translation>
     </message>
     <message>
         <location line="+1"/>
