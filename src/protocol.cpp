@@ -162,6 +162,18 @@ bool CMessageHeader::IsValidWithoutConfig(const MessageMagic &magic) const {
 }
 
 bool CMessageHeader::IsOversized(const Config &config) const {
+
+    /*
+    Special rule for header message, allow 3mb size, since merge mined block headers
+    are larger than normal block headers.
+
+    This is a very conservative estimated based on a large number of transactions in the
+    parent block, resulting in a large merkle branch data structure
+    */
+    if (GetCommand() == NetMsgType::HEADERS){
+        return nMessageSize > 3 *1024*1024;
+    }
+
     // If the message doesn't not contain a block content, check against
     // MAX_PROTOCOL_MESSAGE_LENGTH.
     if (nMessageSize > MAX_PROTOCOL_MESSAGE_LENGTH &&
